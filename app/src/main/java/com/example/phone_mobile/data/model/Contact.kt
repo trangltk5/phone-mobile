@@ -26,12 +26,6 @@ data class CallLog(
     val duration: String = ""
 )
 
-val initialSpeedDialMap: Map<Int, String> = mapOf(
-    1 to "1", // Phím 1: Nguyễn Văn A
-    2 to "2", // Phím 2: Lê Thị B
-    9 to "3"  // Phím 9: Trần Minh C (Khẩn cấp)
-)
-
 val sampleContacts = listOf(
     Contact(
         id = "1",

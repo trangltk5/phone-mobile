@@ -39,14 +39,9 @@
      - **Báo lỗi trùng lặp:** Tự động kiểm tra danh bạ và báo *"Số điện thoại đã tồn tại trong danh bạ"*.
      - Tự động xóa lỗi ngay khi người dùng chỉnh sửa lại dữ liệu.
 
-5. **Bàn phím quay số thông minh (Keypad / Dialpad) & Gọi nhanh khẩn cấp (Speed Dial 0-9):**
+5. **Bàn phím quay số thông minh (Keypad / Dialpad):**
    - Bàn phím số 3x4 bo tròn (1-9, \*, 0, #) kèm ký tự chữ cái (ABC, DEF...).
    - **Nhận diện danh bạ thời gian thực:** Tự động dò tìm trong danh bạ và hiển thị ngay họ tên người nhận kèm ngôi sao yêu thích trên màn hình bàn phím khi số khớp.
-   - **⚡ Tính năng 10 phím gọi nhanh khẩn cấp (0 đến 9):**
-     - **Gán phím nhanh trong Chi tiết liên hệ:** Bấm nút *"Gán phím gọi nhanh khẩn cấp"* để chọn một trong 10 phím số từ `0` đến `9`, hỗ trợ cảnh báo ghi đè và gỡ phím.
-     - **Gọi nhanh bằng Nhấn giữ (Long press):** Ngoài bàn phím, chỉ cần nhấn giữ phím số (0-9) đã gán, ứng dụng sẽ lập tức kích hoạt cuộc gọi tới liên hệ đó!
-     - **Gọi nhanh bằng 1 chạm:** Khi gõ duy nhất 1 chữ số (0-9), ứng dụng tự động hiển thị nhãn gọi nhanh của người đó, bấm nút gọi xanh sẽ kết nối ngay.
-     - **Quản lý danh sách 10 phím khẩn cấp:** Nút *"Gọi nhanh (0-9)"* trên thanh TopBar của bàn phím cho phép xem tổng quan trạng thái cả 10 phím và gọi khẩn cấp trong tích tắc.
 
 6. **Giao diện cuộc gọi toàn màn hình phong cách iPhone (In-Call Screen):**
    - **Trực quan & Hiện đại:** Khi bấm gọi từ bất kỳ màn hình nào (Danh bạ, Chi tiết, Yêu thích, Lịch sử hay Bàn phím), ứng dụng mở trực tiếp màn hình cuộc gọi riêng biệt phong cách iOS, không chuyển vào tab bàn phím.

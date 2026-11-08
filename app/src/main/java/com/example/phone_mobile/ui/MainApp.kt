@@ -12,7 +12,6 @@ import androidx.compose.ui.platform.LocalContext
 import com.example.phone_mobile.data.model.CallLog
 import com.example.phone_mobile.data.model.CallType
 import com.example.phone_mobile.data.model.Contact
-import com.example.phone_mobile.data.model.initialSpeedDialMap
 import com.example.phone_mobile.data.model.sampleCallLogs
 import com.example.phone_mobile.data.model.sampleContacts
 import com.example.phone_mobile.ui.components.PhoneBottomBar
@@ -42,7 +41,6 @@ fun MainApp() {
 
     var contacts by remember { mutableStateOf(sampleContacts) }
     var callLogs by remember { mutableStateOf(sampleCallLogs) }
-    var speedDialMap by remember { mutableStateOf(initialSpeedDialMap) }
     var selectedTab by remember { mutableIntStateOf(2) } // Mặc định là tab Danh bạ
     var currentScreen by remember { mutableStateOf<Screen>(Screen.MainTabs) }
 
@@ -106,7 +104,6 @@ fun MainApp() {
                     KeypadScreen(
                         initialPhoneNumber = keypadPhoneNumber,
                         contacts = contacts,
-                        speedDialMap = speedDialMap,
                         onMakeCall = { number, contactName ->
                             initiateCall(number, contactName)
                         },
@@ -173,22 +170,8 @@ fun MainApp() {
                     currentScreen = Screen.MainTabs
                 }
 
-                val assignedSpeedDialKey = speedDialMap.entries.find { it.value == contact.id }?.key
-
                 ContactDetailScreen(
                     contact = contact,
-                    assignedSpeedDialKey = assignedSpeedDialKey,
-                    allSpeedDials = speedDialMap,
-                    allContacts = contacts,
-                    onAssignSpeedDial = { key ->
-                        // Xóa gán cũ của liên hệ này (nếu có) và gán phím mới
-                        speedDialMap = speedDialMap.filterValues { it != contact.id } + (key to contact.id)
-                        Toast.makeText(context, "Đã gán phím $key cho \"${contact.name}\"", Toast.LENGTH_SHORT).show()
-                    },
-                    onRemoveSpeedDial = {
-                        speedDialMap = speedDialMap.filterValues { it != contact.id }
-                        Toast.makeText(context, "Đã gỡ phím gọi nhanh của \"${contact.name}\"", Toast.LENGTH_SHORT).show()
-                    },
                     onBackClick = { currentScreen = Screen.MainTabs },
                     onEditClick = { currentScreen = Screen.Edit(contact.id) },
                     onCallClick = { initiateCall(contact.phoneNumber, contact.name) },
@@ -205,7 +188,6 @@ fun MainApp() {
                     },
                     onDeleteClick = {
                         contacts = contacts.filterNot { it.id == contact.id }
-                        speedDialMap = speedDialMap.filterValues { it != contact.id }
                         Toast.makeText(context, "Đã xóa liên hệ \"${contact.name}\"", Toast.LENGTH_SHORT).show()
                         currentScreen = Screen.MainTabs
                     }

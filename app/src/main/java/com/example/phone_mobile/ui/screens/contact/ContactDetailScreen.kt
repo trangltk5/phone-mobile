@@ -51,11 +51,6 @@ import com.example.phone_mobile.ui.theme.RedDelete
 @Composable
 fun ContactDetailScreen(
     contact: Contact,
-    assignedSpeedDialKey: Int? = null,
-    allSpeedDials: Map<Int, String> = emptyMap(),
-    allContacts: List<Contact> = emptyList(),
-    onAssignSpeedDial: (key: Int) -> Unit = {},
-    onRemoveSpeedDial: () -> Unit = {},
     onBackClick: () -> Unit,
     onEditClick: () -> Unit,
     onCallClick: () -> Unit,
@@ -65,263 +60,6 @@ fun ContactDetailScreen(
     onDeleteClick: () -> Unit
 ) {
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
-    var showSpeedDialDialog by remember { mutableStateOf(false) }
-    var keyToOverwrite by remember { mutableStateOf<Int?>(null) }
-
-    // Hộp thoại gán phím gọi nhanh khẩn cấp (0-9)
-    if (showSpeedDialDialog) {
-        Dialog(onDismissRequest = { showSpeedDialDialog = false }) {
-            Surface(
-                shape = RoundedCornerShape(20.dp),
-                color = Color.White,
-                modifier = Modifier.width(340.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 22.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // Header icon tia chớp
-                    Box(
-                        modifier = Modifier
-                            .size(52.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFFFFF4E5)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_flash),
-                            contentDescription = null,
-                            tint = Color(0xFFFF9800),
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text(
-                        text = "Gán phím gọi nhanh khẩn cấp",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black,
-                        textAlign = TextAlign.Center
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "Chọn phím số (0-9) để gán cho \"${contact.name}\". Khi ở bàn phím, nhấn giữ hoặc bấm số để gọi ngay.",
-                        fontSize = 13.sp,
-                        color = Color.Gray,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 18.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(18.dp))
-
-                    // Lưới 10 phím (1-9 và 0)
-                    val keys = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 0)
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        // Hàng 1: 1, 2, 3
-                        SpeedDialKeyRow(
-                            keys = listOf(1, 2, 3),
-                            currentAssignedKey = assignedSpeedDialKey,
-                            allSpeedDials = allSpeedDials,
-                            allContacts = allContacts,
-                            currentContactId = contact.id,
-                            onKeySelected = { key ->
-                                val existingId = allSpeedDials[key]
-                                if (existingId != null && existingId != contact.id) {
-                                    keyToOverwrite = key
-                                } else {
-                                    onAssignSpeedDial(key)
-                                    showSpeedDialDialog = false
-                                }
-                            }
-                        )
-
-                        // Hàng 2: 4, 5, 6
-                        SpeedDialKeyRow(
-                            keys = listOf(4, 5, 6),
-                            currentAssignedKey = assignedSpeedDialKey,
-                            allSpeedDials = allSpeedDials,
-                            allContacts = allContacts,
-                            currentContactId = contact.id,
-                            onKeySelected = { key ->
-                                val existingId = allSpeedDials[key]
-                                if (existingId != null && existingId != contact.id) {
-                                    keyToOverwrite = key
-                                } else {
-                                    onAssignSpeedDial(key)
-                                    showSpeedDialDialog = false
-                                }
-                            }
-                        )
-
-                        // Hàng 3: 7, 8, 9
-                        SpeedDialKeyRow(
-                            keys = listOf(7, 8, 9),
-                            currentAssignedKey = assignedSpeedDialKey,
-                            allSpeedDials = allSpeedDials,
-                            allContacts = allContacts,
-                            currentContactId = contact.id,
-                            onKeySelected = { key ->
-                                val existingId = allSpeedDials[key]
-                                if (existingId != null && existingId != contact.id) {
-                                    keyToOverwrite = key
-                                } else {
-                                    onAssignSpeedDial(key)
-                                    showSpeedDialDialog = false
-                                }
-                            }
-                        )
-
-                        // Hàng 4: 0 ở giữa
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            SpeedDialKeyButton(
-                                key = 0,
-                                isAssignedToThis = assignedSpeedDialKey == 0,
-                                assignedContactName = allSpeedDials[0]?.let { id ->
-                                    allContacts.find { it.id == id }?.name
-                                },
-                                isAssignedToOther = allSpeedDials[0] != null && allSpeedDials[0] != contact.id,
-                                onClick = {
-                                    val existingId = allSpeedDials[0]
-                                    if (existingId != null && existingId != contact.id) {
-                                        keyToOverwrite = 0
-                                    } else {
-                                        onAssignSpeedDial(0)
-                                        showSpeedDialDialog = false
-                                    }
-                                }
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Nút gỡ bỏ nếu đang gán
-                    if (assignedSpeedDialKey != null) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(40.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color(0xFFFFF0F0))
-                                .clickable {
-                                    onRemoveSpeedDial()
-                                    showSpeedDialDialog = false
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "Gỡ phím gọi nhanh (${assignedSpeedDialKey})",
-                                color = RedDelete,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-
-                    // Nút Đóng
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(40.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(Color(0xFFF1F3F4))
-                            .clickable { showSpeedDialDialog = false },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "Đóng",
-                            color = Color.Black,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-    // Hộp thoại xác nhận ghi đè khi phím đã được gán cho người khác
-    if (keyToOverwrite != null) {
-        val targetKey = keyToOverwrite!!
-        val otherName = allSpeedDials[targetKey]?.let { id ->
-            allContacts.find { it.id == id }?.name
-        } ?: "liên hệ khác"
-
-        Dialog(onDismissRequest = { keyToOverwrite = null }) {
-            Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = Color.White,
-                modifier = Modifier.width(300.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Thay đổi phím gọi nhanh",
-                        fontSize = 17.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Phím $targetKey hiện đang được gán cho \"$otherName\". Bạn có muốn chuyển phím này cho \"${contact.name}\" không?",
-                        fontSize = 14.sp,
-                        color = Color.DarkGray,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(40.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color(0xFFF1F3F4))
-                                .clickable { keyToOverwrite = null },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(text = "Hủy", color = Color.Black, fontSize = 14.sp)
-                        }
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(40.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(PrimaryBlue)
-                                .clickable {
-                                    onAssignSpeedDial(targetKey)
-                                    keyToOverwrite = null
-                                    showSpeedDialDialog = false
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "Đồng ý",
-                                color = Color.White,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     // Hộp thoại xóa liên hệ chuẩn 100% theo thiết kế Figma
     if (showDeleteConfirmDialog) {
@@ -382,26 +120,27 @@ fun ContactDetailScreen(
                         // Nút Hủy
                         Box(
                             modifier = Modifier
-                                .width(90.dp)
-                                .height(38.dp)
-                                .border(1.dp, Color(0xFFC7D3E3), RoundedCornerShape(8.dp))
+                                .weight(1f)
+                                .height(44.dp)
+                                .border(1.dp, BorderGray, RoundedCornerShape(22.dp))
                                 .clickable { showDeleteConfirmDialog = false },
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = "Hủy",
-                                color = ActionBlueText,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Medium
+                                color = PrimaryBlue,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
 
                         // Nút Xóa
                         Box(
                             modifier = Modifier
-                                .width(90.dp)
-                                .height(38.dp)
-                                .border(1.dp, RedDelete, RoundedCornerShape(8.dp))
+                                .weight(1f)
+                                .height(44.dp)
+                                .clip(RoundedCornerShape(22.dp))
+                                .background(RedDelete)
                                 .clickable {
                                     showDeleteConfirmDialog = false
                                     onDeleteClick()
@@ -410,9 +149,9 @@ fun ContactDetailScreen(
                         ) {
                             Text(
                                 text = "Xóa",
-                                color = RedDelete,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Medium
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
                     }
@@ -434,7 +173,7 @@ fun ContactDetailScreen(
                         .fillMaxWidth()
                         .statusBarsPadding()
                         .height(64.dp)
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -447,7 +186,6 @@ fun ContactDetailScreen(
                                 modifier = Modifier.size(24.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "Chi tiết liên hệ",
                             fontSize = 20.sp,
@@ -459,6 +197,7 @@ fun ContactDetailScreen(
                     // Nút Sửa
                     Box(
                         modifier = Modifier
+                            .padding(end = 12.dp)
                             .background(Color.White, RoundedCornerShape(10.dp))
                             .clickable(onClick = onEditClick)
                             .padding(horizontal = 14.dp, vertical = 6.dp),
@@ -667,41 +406,6 @@ fun ContactDetailScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Gọi nhanh khẩn cấp (Phím 0-9)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .background(
-                        if (assignedSpeedDialKey != null) Color(0xFFFFF4E5) else ActionBlueLight,
-                        RoundedCornerShape(10.dp)
-                    )
-                    .clickable { showSpeedDialDialog = true },
-                contentAlignment = Alignment.Center
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_flash),
-                        contentDescription = null,
-                        tint = if (assignedSpeedDialKey != null) Color(0xFFFF9800) else ActionBlueText,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = if (assignedSpeedDialKey != null) {
-                            "Gọi nhanh khẩn cấp (Phím $assignedSpeedDialKey)"
-                        } else {
-                            "Gán phím gọi nhanh khẩn cấp (0-9)"
-                        },
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = if (assignedSpeedDialKey != null) Color(0xFFE65100) else ActionBlueText
-                    )
-                }
-            }
-
             Spacer(modifier = Modifier.height(16.dp))
 
             // Xóa
@@ -763,92 +467,6 @@ private fun DetailInfoRow(
                 text = value,
                 fontSize = 16.sp,
                 color = Color.Black
-            )
-        }
-    }
-}
-
-@Composable
-private fun SpeedDialKeyRow(
-    keys: List<Int>,
-    currentAssignedKey: Int?,
-    allSpeedDials: Map<Int, String>,
-    allContacts: List<Contact>,
-    currentContactId: String,
-    onKeySelected: (Int) -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly
-    ) {
-        keys.forEach { key ->
-            val assignedId = allSpeedDials[key]
-            val isThis = currentAssignedKey == key
-            val isOther = assignedId != null && assignedId != currentContactId
-            val name = assignedId?.let { id ->
-                allContacts.find { it.id == id }?.name
-            }
-
-            SpeedDialKeyButton(
-                key = key,
-                isAssignedToThis = isThis,
-                assignedContactName = name,
-                isAssignedToOther = isOther,
-                onClick = { onKeySelected(key) }
-            )
-        }
-    }
-}
-
-@Composable
-private fun SpeedDialKeyButton(
-    key: Int,
-    isAssignedToThis: Boolean,
-    assignedContactName: String?,
-    isAssignedToOther: Boolean,
-    onClick: () -> Unit
-) {
-    val bgColor = when {
-        isAssignedToThis -> Color(0xFFFF9800)
-        isAssignedToOther -> Color(0xFFF1F3F4)
-        else -> Color(0xFFE8F0FE)
-    }
-
-    val textColor = when {
-        isAssignedToThis -> Color.White
-        isAssignedToOther -> Color.DarkGray
-        else -> PrimaryBlue
-    }
-
-    Box(
-        modifier = Modifier
-            .size(width = 82.dp, height = 56.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(bgColor)
-            .clickable(onClick = onClick)
-            .padding(4.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = key.toString(),
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = textColor
-            )
-            Text(
-                text = when {
-                    isAssignedToThis -> "Đang gán"
-                    isAssignedToOther -> assignedContactName?.take(7) ?: "Đã gán"
-                    else -> "Trống"
-                },
-                fontSize = 10.sp,
-                fontWeight = if (isAssignedToThis) FontWeight.Bold else FontWeight.Normal,
-                color = if (isAssignedToThis) Color.White else Color.Gray,
-                maxLines = 1
             )
         }
     }
