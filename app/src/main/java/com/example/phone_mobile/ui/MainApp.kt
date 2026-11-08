@@ -167,6 +167,9 @@ fun MainApp() {
                         onImportScannedContact = { scannedContact ->
                             contacts = listOf(scannedContact) + contacts
                         },
+                        onViewContactDetail = { contact ->
+                            currentScreen = Screen.Detail(contact.id)
+                        },
                         bottomBar = {
                             PhoneBottomBar(
                                 selectedTab = selectedTab,

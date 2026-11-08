@@ -60,6 +60,7 @@ import com.example.phone_mobile.ui.theme.PrimaryBlue
 @Composable
 fun ShareCardScreen(
     onImportScannedContact: (Contact) -> Unit = {},
+    onViewContactDetail: (Contact) -> Unit = {},
     bottomBar: @Composable () -> Unit
 ) {
     val context = LocalContext.current
@@ -71,10 +72,40 @@ fun ShareCardScreen(
     var myEmail by remember { mutableStateOf("ngocnguyen@gmail.com") }
 
     var isViewingQrPage by remember { mutableStateOf(false) }
-    var showScanDialog by remember { mutableStateOf(false) }
+    var isScanningQr by remember { mutableStateOf(false) }
+    var scannedSuccessContact by remember { mutableStateOf<Contact?>(null) }
     var showEditProfileDialog by remember { mutableStateOf(false) }
 
-    // Chuyển sang trang "Mã QR danh thiếp" toàn màn hình chuẩn như hình (sinh vCard thực tế)
+    // 1. Màn hình "Thêm liên hệ từ QR" (Khi quét thành công - giao diện chuẩn 100% như ảnh)
+    if (scannedSuccessContact != null) {
+        ScanSuccessScreen(
+            contact = scannedSuccessContact!!,
+            onViewDetail = { contact ->
+                scannedSuccessContact = null
+                onViewContactDetail(contact)
+            },
+            onBack = {
+                scannedSuccessContact = null
+            },
+            bottomBar = bottomBar
+        )
+        return
+    }
+
+    // 2. Màn hình "Quét mã QR" (Camera thực tế, bật đèn Flash, chọn ảnh từ thư viện - chuẩn 100% như ảnh)
+    if (isScanningQr) {
+        QrScannerScreen(
+            onContactScanned = { contact ->
+                onImportScannedContact(contact)
+                scannedSuccessContact = contact
+                isScanningQr = false
+            },
+            onBackClick = { isScanningQr = false }
+        )
+        return
+    }
+
+    // 3. Chuyển sang trang "Mã QR danh thiếp" toàn màn hình chuẩn như hình (sinh vCard thực tế)
     if (isViewingQrPage) {
         CardQrScreen(
             contactName = myName,
@@ -85,99 +116,6 @@ fun ShareCardScreen(
             bottomBar = bottomBar
         )
         return
-    }
-
-    // Hộp thoại Quét mã QR để lưu liên hệ
-    if (showScanDialog) {
-        Dialog(onDismissRequest = { showScanDialog = false }) {
-            Surface(
-                shape = RoundedCornerShape(24.dp),
-                color = Color.White,
-                modifier = Modifier.width(330.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(22.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Quét mã QR danh bạ",
-                        fontSize = 19.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "Hướng camera vào mã QR để nhận diện",
-                        fontSize = 13.sp,
-                        color = Color.Gray
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Giao diện mô phỏng Camera Viewfinder với tia quét
-                    QrScannerViewfinder(modifier = Modifier.size(210.dp))
-
-                    Spacer(modifier = Modifier.height(18.dp))
-
-                    // Nút quét thử liên hệ mẫu vào danh bạ
-                    Button(
-                        onClick = {
-                            val newContact = Contact(
-                                id = System.currentTimeMillis().toString(),
-                                name = "Vũ Đình Trọng",
-                                phoneNumber = "0934 888 999",
-                                email = "trongvu@gmail.com",
-                                address = "TP. Hồ Chí Minh",
-                                note = "Quét từ mã QR danh thiếp"
-                            )
-                            onImportScannedContact(newContact)
-                            Toast.makeText(
-                                context,
-                                "Đã quét và thêm \"${newContact.name}\" vào danh bạ!",
-                                Toast.LENGTH_LONG
-                            ).show()
-                            showScanDialog = false
-                        },
-                        colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
-                        shape = RoundedCornerShape(22.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(44.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_qr_scan),
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Mô phỏng quét mã thành công",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(40.dp)
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(Color(0xFFF1F3F4))
-                            .clickable { showScanDialog = false },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "Hủy bỏ", color = Color.Black, fontSize = 14.sp)
-                    }
-                }
-            }
-        }
     }
 
     // Hộp thoại chỉnh sửa thông tin cá nhân
@@ -501,9 +439,9 @@ fun ShareCardScreen(
 
             Spacer(modifier = Modifier.height(14.dp))
 
-            // 7. Nút Quét mã QR (Tính năng bổ sung theo yêu cầu)
+            // 7. Nút Quét mã QR (Mở camera quét mã QR thật & chọn từ thư viện)
             Button(
-                onClick = { showScanDialog = true },
+                onClick = { isScanningQr = true },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFEBF3FE),
                     contentColor = PrimaryBlue
@@ -556,43 +494,6 @@ fun ShareCardScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-        }
-    }
-}
-
-@Composable
-private fun QrScannerViewfinder(modifier: Modifier = Modifier) {
-    val infiniteTransition = rememberInfiniteTransition(label = "scanner_line")
-    val scanProgress by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse
-        ),
-        label = "scan_line"
-    )
-
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFF1E293B)),
-        contentAlignment = Alignment.Center
-    ) {
-        // Khung quét trung tâm
-        Box(
-            modifier = Modifier
-                .size(150.dp)
-                .border(2.dp, Color(0xFF38BDF8), RoundedCornerShape(12.dp))
-        ) {
-            // Tia laser quét di chuyển lên xuống
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(2.dp)
-                    .padding(top = (150 * scanProgress).dp)
-                    .background(Color(0xFF38BDF8))
-            )
         }
     }
 }

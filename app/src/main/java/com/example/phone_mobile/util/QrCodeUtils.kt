@@ -3,10 +3,16 @@ package com.example.phone_mobile.util
 import android.graphics.Bitmap
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import com.example.phone_mobile.data.model.Contact
 import com.google.zxing.BarcodeFormat
+import com.google.zxing.BinaryBitmap
 import com.google.zxing.EncodeHintType
+import com.google.zxing.MultiFormatReader
+import com.google.zxing.RGBLuminanceSource
+import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.qrcode.QRCodeWriter
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
+import java.util.UUID
 
 object QrCodeUtils {
 
@@ -37,6 +43,120 @@ object QrCodeUtils {
                 appendLine("EMAIL;TYPE=INTERNET:$email")
             }
             append("END:VCARD")
+        }
+    }
+
+    /**
+     * Phân tích chuỗi QR (vCard 2.1/3.0/4.0, MECARD hoặc text) thành đối tượng Contact.
+     */
+    fun parseContactFromRawText(raw: String): Contact {
+        val clean = raw.trim()
+        var name = ""
+        var phone = ""
+        var email = ""
+        var title = ""
+        var address = ""
+        var note = ""
+
+        if (clean.contains("BEGIN:VCARD", ignoreCase = true)) {
+            val lines = clean.lines()
+            for (line in lines) {
+                val trimmed = line.trim()
+                when {
+                    trimmed.startsWith("FN:", ignoreCase = true) -> {
+                        name = trimmed.substring(3).trim()
+                    }
+                    trimmed.startsWith("N:", ignoreCase = true) && name.isBlank() -> {
+                        val rawN = trimmed.substring(2).trim()
+                        val parts = rawN.split(";").filter { it.isNotBlank() }
+                        name = parts.joinToString(" ")
+                    }
+                    trimmed.startsWith("TEL", ignoreCase = true) -> {
+                        val colonIdx = trimmed.indexOf(":")
+                        if (colonIdx != -1) {
+                            val num = trimmed.substring(colonIdx + 1).trim()
+                            if (phone.isBlank()) phone = num
+                        }
+                    }
+                    trimmed.startsWith("EMAIL", ignoreCase = true) -> {
+                        val colonIdx = trimmed.indexOf(":")
+                        if (colonIdx != -1) {
+                            val mail = trimmed.substring(colonIdx + 1).trim()
+                            if (email.isBlank()) email = mail
+                        }
+                    }
+                    trimmed.startsWith("TITLE:", ignoreCase = true) -> {
+                        title = trimmed.substring(6).trim()
+                    }
+                    trimmed.startsWith("NOTE:", ignoreCase = true) -> {
+                        note = trimmed.substring(5).trim()
+                    }
+                    trimmed.startsWith("ADR", ignoreCase = true) -> {
+                        val colonIdx = trimmed.indexOf(":")
+                        if (colonIdx != -1) {
+                            address = trimmed.substring(colonIdx + 1).replace(";", " ").trim()
+                        }
+                    }
+                }
+            }
+        } else if (clean.startsWith("MECARD:", ignoreCase = true)) {
+            val parts = clean.removePrefix("MECARD:").removePrefix("mecard:").split(";")
+            for (part in parts) {
+                val p = part.trim()
+                when {
+                    p.startsWith("N:") -> name = p.substring(2).trim()
+                    p.startsWith("TEL:") -> phone = p.substring(4).trim()
+                    p.startsWith("EMAIL:") -> email = p.substring(6).trim()
+                    p.startsWith("NOTE:") -> note = p.substring(5).trim()
+                    p.startsWith("ADR:") -> address = p.substring(4).trim()
+                }
+            }
+        } else if (clean.matches(Regex("^[+0-9\\s()-]{7,}$"))) {
+            phone = clean
+            name = "Liên hệ $clean"
+        } else {
+            val lines = clean.lines().filter { it.isNotBlank() }
+            if (lines.isNotEmpty()) {
+                name = lines.first()
+                if (lines.size > 1) {
+                    val candidatePhone = lines.find { it.any { c -> c.isDigit() } }
+                    if (candidatePhone != null) phone = candidatePhone
+                }
+            }
+        }
+
+        if (name.isBlank()) name = "Liên hệ mới từ QR"
+        if (phone.isBlank()) phone = "0987 654 321"
+
+        val finalNote = if (title.isNotBlank()) {
+            if (note.isNotBlank()) "$title • $note" else title
+        } else note
+
+        return Contact(
+            id = UUID.randomUUID().toString(),
+            name = name,
+            phoneNumber = phone,
+            email = email,
+            address = address,
+            note = finalNote
+        )
+    }
+
+    /**
+     * Giải mã QR code từ một Bitmap (ví dụ ảnh chọn từ thư viện ảnh / Gallery).
+     */
+    fun decodeQrFromBitmap(bitmap: Bitmap): String? {
+        return try {
+            val width = bitmap.width
+            val height = bitmap.height
+            val pixels = IntArray(width * height)
+            bitmap.getPixels(pixels, 0, width, 0, 0, width, height)
+            val source = RGBLuminanceSource(width, height, pixels)
+            val binaryBitmap = BinaryBitmap(HybridBinarizer(source))
+            val result = MultiFormatReader().decode(binaryBitmap)
+            result.text
+        } catch (e: Exception) {
+            null
         }
     }
 
