@@ -71,7 +71,7 @@ fun PhoneBottomBar(
             )
             BottomNavItem(
                 iconRes = R.drawable.ic_more,
-                label = "Thêm",
+                label = "Danh thiếp của tôi",
                 isSelected = selectedTab == 4,
                 onClick = { onTabSelected(4) }
             )
@@ -108,9 +108,10 @@ private fun BottomNavItem(
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = label,
-            fontSize = 11.sp,
+            fontSize = if (label.length > 8) 10.sp else 11.sp,
             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
-            color = itemColor
+            color = itemColor,
+            maxLines = 1
         )
     }
 }

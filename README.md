@@ -60,9 +60,14 @@
      - 🔴 **Cuộc gọi nhỡ (Missed):** Mũi tên đỏ và tên hiển thị màu đỏ
    - Tự động ghi lại nhật ký mỗi khi người dùng thực hiện cuộc gọi trong ứng dụng.
 
-9. **Menu "Thêm" - Chia sẻ danh thiếp & Quét mã QR:**
+9. **Menu "Danh thiếp của tôi" & Trang "Mã QR danh thiếp":**
    - **Giao diện chuẩn thiết kế:** Avatar tròn lớn có huy hiệu Camera xanh tròn ở góc dưới bên phải, Họ tên (**Nguyễn Thị Hồng Ngọc**), Chức danh (**Sinh viên**), thẻ thông tin bo tròn màu xanh nhạt gồm **SĐT** (`0987 654 321`) và **Email** (`ngocnguyen@gmail.com`).
-   - **Nút "Tạo mã QR":** Hiển thị mã QR danh thiếp cá nhân dạng ma trận trực quan để người khác quét lưu danh bạ tức thì, hỗ trợ chia sẻ link.
+   - **Trang "Mã QR danh thiếp" (chuẩn 100% theo hình):**
+     - TopBar màu xanh có nút quay lại `←`, tiêu đề *"Mã QR danh thiếp"* và nút Chia sẻ `⠪`.
+     - Thẻ trắng lớn nổi bật chứa **mã QR chân thực** có logo danh bạ xanh ở chính giữa.
+     - Dòng hướng dẫn: *"Quét mã để thêm liên hệ vào danh bạ của bạn"*.
+     - Bộ đôi nút thao tác: Nút **"Chia sẻ"** (PrimaryBlue) và Nút **"Tải xuống"** (Nút trắng viền xanh).
+     - Huy hiệu bảo mật: *"🛡️ Thông tin của bạn được bảo mật"*.
    - **Nút "Quét mã QR":** Giao diện khung ngắm Camera scanner kèm hiệu ứng tia quét laser di chuyển lên xuống và tính năng quét/thêm liên hệ mới vào danh bạ.
    - **Tùy chỉnh thông tin:** Bấm vào thẻ thông tin hoặc avatar để cập nhật danh thiếp của bạn.
 
@@ -107,7 +112,8 @@ phone-mobile/
 │   │   │   │   │   │   ├── keypad/
 │   │   │   │   │   │   │   └── KeypadScreen.kt         # Bàn phím số (Dialpad)
 │   │   │   │   │   │   └── more/
-│   │   │   │   │   │       └── ShareCardScreen.kt      # Màn hình Chia sẻ danh thiếp & Quét mã QR
+│   │   │   │   │   │       ├── ShareCardScreen.kt      # Màn hình Chia sẻ danh thiếp & Quét mã QR
+│   │   │   │   │   │       └── CardQrScreen.kt         # Trang Mã QR danh thiếp chuẩn hình
 │   │   │   │   │   ├── theme/
 │   │   │   │   │   │   ├── Color.kt        # Hệ thống màu thiết kế Figma
 │   │   │   │   │   │   ├── Theme.kt        # Cấu hình MaterialTheme

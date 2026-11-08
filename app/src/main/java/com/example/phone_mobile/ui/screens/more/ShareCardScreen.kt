@@ -70,117 +70,18 @@ fun ShareCardScreen(
     var myPhone by remember { mutableStateOf("0987 654 321") }
     var myEmail by remember { mutableStateOf("ngocnguyen@gmail.com") }
 
-    var showQrDialog by remember { mutableStateOf(false) }
+    var isViewingQrPage by remember { mutableStateOf(false) }
     var showScanDialog by remember { mutableStateOf(false) }
     var showEditProfileDialog by remember { mutableStateOf(false) }
 
-    // Hộp thoại hiển thị mã QR Danh thiếp
-    if (showQrDialog) {
-        Dialog(onDismissRequest = { showQrDialog = false }) {
-            Surface(
-                shape = RoundedCornerShape(24.dp),
-                color = Color.White,
-                modifier = Modifier.width(320.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Mã QR Danh thiếp",
-                        fontSize = 19.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    Text(
-                        text = myName,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = PrimaryBlue
-                    )
-                    Text(
-                        text = "$myTitle • $myPhone",
-                        fontSize = 12.sp,
-                        color = Color.Gray
-                    )
-
-                    Spacer(modifier = Modifier.height(18.dp))
-
-                    // Vẽ ma trận giả lập mã QR sắc nét
-                    Box(
-                        modifier = Modifier
-                            .size(200.dp)
-                            .background(Color(0xFFF8FAFC), RoundedCornerShape(12.dp))
-                            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(12.dp))
-                            .padding(12.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        QrCodePattern(modifier = Modifier.fillMaxSize())
-                    }
-
-                    Spacer(modifier = Modifier.height(18.dp))
-
-                    Text(
-                        text = "Người khác có thể dùng camera hoặc ứng dụng quét mã để lưu danh bạ của bạn.",
-                        fontSize = 12.sp,
-                        color = Color.DarkGray,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 17.sp
-                    )
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(44.dp)
-                                .clip(RoundedCornerShape(22.dp))
-                                .background(Color(0xFFF1F3F4))
-                                .clickable { showQrDialog = false },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(text = "Đóng", color = Color.Black, fontSize = 15.sp)
-                        }
-
-                        Box(
-                            modifier = Modifier
-                                .weight(1.2f)
-                                .height(44.dp)
-                                .clip(RoundedCornerShape(22.dp))
-                                .background(PrimaryBlue)
-                                .clickable {
-                                    Toast.makeText(context, "Đã sao chép link danh thiếp!", Toast.LENGTH_SHORT).show()
-                                    showQrDialog = false
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_share),
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = "Chia sẻ",
-                                    color = Color.White,
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    // Chuyển sang trang "Mã QR danh thiếp" toàn màn hình chuẩn như hình
+    if (isViewingQrPage) {
+        CardQrScreen(
+            contactName = myName,
+            onBackClick = { isViewingQrPage = false },
+            bottomBar = bottomBar
+        )
+        return
     }
 
     // Hộp thoại Quét mã QR để lưu liên hệ
@@ -566,9 +467,9 @@ fun ShareCardScreen(
 
             Spacer(modifier = Modifier.height(30.dp))
 
-            // 6. Nút Tạo mã QR (Nút chính màu xanh PrimaryBlue theo ảnh)
+            // 6. Nút Tạo mã QR (Mở trang Mã QR danh thiếp chuẩn 100% như hình)
             Button(
-                onClick = { showQrDialog = true },
+                onClick = { isViewingQrPage = true },
                 colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
                 shape = RoundedCornerShape(26.dp),
                 modifier = Modifier
@@ -656,70 +557,6 @@ fun ShareCardScreen(
     }
 }
 
-/**
- * Vẽ hoa văn ma trận mã QR trực quan
- */
-@Composable
-private fun QrCodePattern(modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier) {
-        val w = size.width
-        val h = size.height
-        val cellSize = w / 21f
-
-        // 3 ô vuông định vị (Position markers ở 3 góc)
-        fun drawMarker(x: Float, y: Float) {
-            // Khung ngoài
-            drawRect(
-                color = Color.Black,
-                topLeft = Offset(x, y),
-                size = Size(cellSize * 7, cellSize * 7)
-            )
-            // Lõi trắng
-            drawRect(
-                color = Color.White,
-                topLeft = Offset(x + cellSize, y + cellSize),
-                size = Size(cellSize * 5, cellSize * 5)
-            )
-            // Lõi đen ở giữa
-            drawRect(
-                color = Color.Black,
-                topLeft = Offset(x + cellSize * 2, y + cellSize * 2),
-                size = Size(cellSize * 3, cellSize * 3)
-            )
-        }
-
-        drawMarker(0f, 0f)
-        drawMarker(w - cellSize * 7, 0f)
-        drawMarker(0f, h - cellSize * 7)
-
-        // Các chấm dữ liệu ngẫu nhiên tạo hình mã QR thật
-        val matrix = listOf(
-            listOf(0, 0, 1, 0, 1, 1, 0),
-            listOf(1, 0, 0, 1, 0, 1, 1),
-            listOf(0, 1, 1, 0, 1, 0, 0),
-            listOf(1, 1, 0, 1, 0, 1, 0),
-            listOf(0, 0, 1, 1, 1, 0, 1),
-            listOf(1, 0, 1, 0, 0, 1, 1),
-            listOf(0, 1, 0, 1, 1, 0, 0)
-        )
-
-        for (r in matrix.indices) {
-            for (c in matrix[r].indices) {
-                if (matrix[r][c] == 1) {
-                    drawRect(
-                        color = Color.Black,
-                        topLeft = Offset((8 + c) * cellSize, (8 + r) * cellSize),
-                        size = Size(cellSize, cellSize)
-                    )
-                }
-            }
-        }
-    }
-}
-
-/**
- * Khung ngắm quét mã QR với hiệu ứng quét sáng chạy lên xuống
- */
 @Composable
 private fun QrScannerViewfinder(modifier: Modifier = Modifier) {
     val infiniteTransition = rememberInfiniteTransition(label = "scanner_line")
