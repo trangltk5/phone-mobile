@@ -120,26 +120,27 @@ fun ContactDetailScreen(
                         // Nút Hủy
                         Box(
                             modifier = Modifier
-                                .width(90.dp)
-                                .height(38.dp)
-                                .border(1.dp, Color(0xFFC7D3E3), RoundedCornerShape(8.dp))
+                                .weight(1f)
+                                .height(44.dp)
+                                .border(1.dp, BorderGray, RoundedCornerShape(22.dp))
                                 .clickable { showDeleteConfirmDialog = false },
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = "Hủy",
-                                color = ActionBlueText,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Medium
+                                color = PrimaryBlue,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
 
                         // Nút Xóa
                         Box(
                             modifier = Modifier
-                                .width(90.dp)
-                                .height(38.dp)
-                                .border(1.dp, RedDelete, RoundedCornerShape(8.dp))
+                                .weight(1f)
+                                .height(44.dp)
+                                .clip(RoundedCornerShape(22.dp))
+                                .background(RedDelete)
                                 .clickable {
                                     showDeleteConfirmDialog = false
                                     onDeleteClick()
@@ -148,9 +149,9 @@ fun ContactDetailScreen(
                         ) {
                             Text(
                                 text = "Xóa",
-                                color = RedDelete,
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Medium
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
                     }
@@ -172,7 +173,7 @@ fun ContactDetailScreen(
                         .fillMaxWidth()
                         .statusBarsPadding()
                         .height(64.dp)
-                        .padding(horizontal = 16.dp),
+                        .padding(horizontal = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -185,7 +186,6 @@ fun ContactDetailScreen(
                                 modifier = Modifier.size(24.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "Chi tiết liên hệ",
                             fontSize = 20.sp,
@@ -197,6 +197,7 @@ fun ContactDetailScreen(
                     // Nút Sửa
                     Box(
                         modifier = Modifier
+                            .padding(end = 12.dp)
                             .background(Color.White, RoundedCornerShape(10.dp))
                             .clickable(onClick = onEditClick)
                             .padding(horizontal = 14.dp, vertical = 6.dp),

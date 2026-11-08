@@ -1,5 +1,6 @@
 package com.example.phone_mobile.ui.screens.contact
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -59,14 +60,24 @@ fun ContactListScreen(
     bottomBar: @Composable () -> Unit = {}
 ) {
     var searchQuery by remember { mutableStateOf("") }
+    val isSearching = searchQuery.isNotEmpty()
 
-    // Màn hình "Danh bạ trống" chuẩn 100% theo Figma (Node 5:1791)
+    // Bấm nút quay lại của Android khi đang tìm kiếm thì xóa tìm kiếm
+    BackHandler(enabled = isSearching) {
+        searchQuery = ""
+    }
+
+    // 1. Màn hình "Danh bạ trống" chuẩn 100% theo Ảnh 2 (Node 5:1791)
     if (contacts.isEmpty()) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             containerColor = Color.White,
             topBar = {
-                ContactTopBar(onAddClick = onAddClick)
+                ContactTopBar(
+                    isSearching = false,
+                    onBackFromSearch = {},
+                    onAddClick = onAddClick
+                )
             },
             bottomBar = bottomBar
         ) { innerPadding ->
@@ -91,7 +102,7 @@ fun ContactListScreen(
                 // Tiêu đề: "Chưa có liên hệ nào"
                 Text(
                     text = "Chưa có liên hệ nào",
-                    fontSize = 20.sp,
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
                 )
@@ -101,10 +112,10 @@ fun ContactListScreen(
                 // Hướng dẫn: "Hãy thêm liên hệ đầu tiên của bạn để bắt đầu quản lý danh bạ"
                 Text(
                     text = "Hãy thêm liên hệ đầu tiên của bạn\nđể bắt đầu quản lý danh bạ",
-                    fontSize = 15.sp,
-                    color = Color(0xFF666666),
+                    fontSize = 14.sp,
+                    color = Color(0xFF6B7280),
                     textAlign = TextAlign.Center,
-                    lineHeight = 22.sp
+                    lineHeight = 20.sp
                 )
 
                 Spacer(modifier = Modifier.height(28.dp))
@@ -113,7 +124,7 @@ fun ContactListScreen(
                 Button(
                     onClick = onAddClick,
                     modifier = Modifier
-                        .fillMaxWidth(0.85f)
+                        .fillMaxWidth(0.82f)
                         .height(48.dp),
                     colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
                     shape = RoundedCornerShape(12.dp)
@@ -171,7 +182,11 @@ fun ContactListScreen(
         modifier = Modifier.fillMaxSize(),
         containerColor = Color.White,
         topBar = {
-            ContactTopBar(onAddClick = onAddClick)
+            ContactTopBar(
+                isSearching = isSearching,
+                onBackFromSearch = { searchQuery = "" },
+                onAddClick = onAddClick
+            )
         },
         bottomBar = bottomBar
     ) { innerPadding ->
@@ -180,68 +195,98 @@ fun ContactListScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // Search Input
+            // Thanh tìm kiếm (có nút xóa x chuẩn như Ảnh 1)
             ContactSearchBar(
                 query = searchQuery,
                 onQueryChange = { searchQuery = it },
+                onClearQuery = { searchQuery = "" },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 12.dp)
             )
 
-            // Contact List grouped by Alphabet sections
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                groupedContacts.forEach { (initial, contactList) ->
-                    item(key = "header_$initial") {
-                        Text(
-                            text = initial,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextDark,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 24.dp, vertical = 8.dp)
-                        )
-                    }
+            // 2. Màn hình "Không tìm thấy liên hệ phù hợp" chuẩn 100% theo Ảnh 1
+            if (filteredContacts.isEmpty()) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp)
+                        .padding(bottom = 60.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    // Hình minh họa khung vuông viền xanh dương và cuốn sổ danh bạ bên trong
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_search_empty),
+                        contentDescription = null,
+                        tint = Color.Unspecified,
+                        modifier = Modifier.size(190.dp)
+                    )
 
-                    items(contactList, key = { it.id }) { contact ->
-                        ContactItemRow(
-                            contact = contact,
-                            onClick = { onContactClick(contact) },
-                            onCallClick = { onCallClick(contact) }
-                        )
-                    }
+                    Spacer(modifier = Modifier.height(24.dp))
+
+                    // Tiêu đề đậm: "Không tìm thấy liên hệ phù hợp."
+                    Text(
+                        text = "Không tìm thấy liên hệ phù hợp.",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Phụ đề xám: "Hãy thử từ khóa khác."
+                    Text(
+                        text = "Hãy thử từ khóa khác.",
+                        fontSize = 14.sp,
+                        color = Color(0xFF6B7280),
+                        textAlign = TextAlign.Center
+                    )
                 }
-
-                if (filteredContacts.isEmpty()) {
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 48.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
+            } else {
+                // Danh sách liên hệ gom nhóm theo bảng chữ cái
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    groupedContacts.forEach { (initial, contactList) ->
+                        item(key = "header_$initial") {
                             Text(
-                                text = "Không tìm thấy liên hệ nào",
-                                fontSize = 16.sp,
-                                color = Color.Gray
+                                text = initial,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextDark,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 24.dp, vertical = 8.dp)
+                            )
+                        }
+
+                        items(contactList, key = { it.id }) { contact ->
+                            ContactItemRow(
+                                contact = contact,
+                                onClick = { onContactClick(contact) },
+                                onCallClick = { onCallClick(contact) }
                             )
                         }
                     }
-                }
 
-                item {
-                    Spacer(modifier = Modifier.height(24.dp))
+                    item {
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
                 }
             }
         }
     }
 }
 
+/**
+ * TopBar: Thay đổi giữa "Danh bạ" (kèm nút +) và "Tìm kiếm" (kèm nút ←) chuẩn như ảnh
+ */
 @Composable
 private fun ContactTopBar(
+    isSearching: Boolean,
+    onBackFromSearch: () -> Unit,
     onAddClick: () -> Unit
 ) {
     Surface(
@@ -253,36 +298,54 @@ private fun ContactTopBar(
                 .fillMaxWidth()
                 .statusBarsPadding()
                 .height(64.dp)
-                .padding(horizontal = 20.dp),
+                .padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = "Danh bạ",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (isSearching) {
+                    IconButton(onClick = onBackFromSearch) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_arrow_back),
+                            contentDescription = "Quay lại",
+                            tint = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                } else {
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
 
-            IconButton(
-                onClick = onAddClick,
-                modifier = Modifier.size(36.dp)
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_add),
-                    contentDescription = "Thêm liên hệ",
-                    tint = Color.White,
-                    modifier = Modifier.size(28.dp)
+                Text(
+                    text = if (isSearching) "Tìm kiếm" else "Danh bạ",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
                 )
+            }
+
+            if (!isSearching) {
+                IconButton(onClick = onAddClick) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_add),
+                        contentDescription = "Thêm liên hệ",
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
             }
         }
     }
 }
 
+/**
+ * Thanh tìm kiếm có icon Search và nút Xóa X bên phải chuẩn như Ảnh 1
+ */
 @Composable
 private fun ContactSearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
+    onClearQuery: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -300,10 +363,10 @@ private fun ContactSearchBar(
                 painter = painterResource(id = R.drawable.ic_search),
                 contentDescription = "Tìm kiếm",
                 tint = Color.Black,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(22.dp)
             )
 
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(10.dp))
 
             BasicTextField(
                 value = query,
@@ -314,7 +377,7 @@ private fun ContactSearchBar(
                     color = Color.Black
                 ),
                 cursorBrush = SolidColor(PrimaryBlue),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.weight(1f),
                 decorationBox = { innerTextField ->
                     if (query.isEmpty()) {
                         Text(
@@ -326,6 +389,21 @@ private fun ContactSearchBar(
                     innerTextField()
                 }
             )
+
+            // Nút xóa 'X' xuất hiện khi có nội dung tìm kiếm (chuẩn như Ảnh 1)
+            if (query.isNotEmpty()) {
+                IconButton(
+                    onClick = onClearQuery,
+                    modifier = Modifier.size(28.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_close),
+                        contentDescription = "Xóa từ khóa",
+                        tint = Color(0xFF555555),
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            }
         }
     }
 }
@@ -340,61 +418,63 @@ private fun ContactItemRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(horizontal = 20.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(horizontal = 20.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // User Avatar
-        Icon(
-            painter = painterResource(id = R.drawable.ic_user_avatar),
-            contentDescription = null,
-            tint = Color.Unspecified,
-            modifier = Modifier.size(58.dp)
-        )
-
-        Spacer(modifier = Modifier.width(16.dp))
-
-        // Name and Phone Number
-        Column(
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.weight(1f)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = contact.name,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.Black
-                )
-                if (contact.isFavorite) {
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_star_filled),
-                        contentDescription = "Yêu thích",
-                        tint = Color(0xFFFFC107),
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(2.dp))
-            Text(
-                text = contact.phoneNumber,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color.Black
+            // Avatar tròn (cố định căn lề trái thẳng hàng)
+            Icon(
+                painter = painterResource(id = R.drawable.ic_user_avatar),
+                contentDescription = null,
+                tint = Color.Unspecified,
+                modifier = Modifier.size(48.dp)
             )
+
+            Spacer(modifier = Modifier.width(14.dp))
+
+            // Tên và SĐT
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = contact.name,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Black
+                    )
+                    // Ngôi sao vàng yêu thích nằm ngay cạnh tên
+                    if (contact.isFavorite) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_star_filled),
+                            contentDescription = "Yêu thích",
+                            tint = Color(0xFFFFB800),
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = contact.phoneNumber,
+                    fontSize = 14.sp,
+                    color = Color(0xFF555555)
+                )
+            }
         }
 
-        // Call button
+        // Nút gọi điện thoại nhanh
         IconButton(
             onClick = onCallClick,
-            modifier = Modifier.size(36.dp)
+            modifier = Modifier.size(40.dp)
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_call),
                 contentDescription = "Gọi cho ${contact.name}",
                 tint = IconGray,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(24.dp)
             )
         }
     }

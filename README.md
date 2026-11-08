@@ -17,9 +17,9 @@
    - Hiển thị ngôi sao vàng ⭐ trực tiếp trên danh bạ cho các liên hệ thuộc danh sách yêu thích.
    - Nút gọi điện nhanh ngay trên từng dòng danh bạ.
 
-2. **Màn hình Danh bạ trống (Empty State):**
-   - Tự động hiển thị thẻ minh họa profile card bo góc màu xanh pastel khi máy chưa có liên hệ hoặc đã xóa hết danh bạ.
-   - Kèm tiêu đề, thông điệp hướng dẫn và nút bấm `+ Thêm liên hệ` nhanh theo đúng thiết kế Figma (Node `5:1791`).
+2. **Màn hình Danh bạ trống & Tìm kiếm không có kết quả (Empty States):**
+   - **Danh bạ trống (Node `5:1791`):** Tự động hiển thị thẻ minh họa profile card bo góc màu xanh pastel khi máy chưa có liên hệ hoặc đã xóa hết danh bạ, kèm tiêu đề *"Chưa có liên hệ nào"*, thông điệp hướng dẫn và nút bấm `+ Thêm liên hệ`.
+   - **Tìm kiếm không có kết quả:** Khi gõ từ khóa không khớp, TopBar chuyển sang tiêu đề *"Tìm kiếm"* kèm nút quay lại `←`, thanh tìm kiếm có nút xóa `✕`, hiển thị hình minh họa **khung vuông viền xanh dương với cuốn sổ danh bạ pastel bên trong**, tiêu đề đậm *"Không tìm thấy liên hệ phù hợp."* và phụ đề *"Hãy thử từ khóa khác."* chuẩn 100% thiết kế.
 
 3. **Xem Chi tiết liên hệ (Contact Details):**
    - Hiển thị avatar đại diện cỡ lớn cùng họ tên đầy đủ.
@@ -60,6 +60,17 @@
      - 🔴 **Cuộc gọi nhỡ (Missed):** Mũi tên đỏ và tên hiển thị màu đỏ
    - Tự động ghi lại nhật ký mỗi khi người dùng thực hiện cuộc gọi trong ứng dụng.
 
+9. **Menu "Danh thiếp của tôi" & Trang "Mã QR danh thiếp":**
+   - **Giao diện chuẩn thiết kế:** Avatar tròn lớn có huy hiệu Camera xanh tròn ở góc dưới bên phải, Họ tên (**Nguyễn Thị Hồng Ngọc**), Chức danh (**Sinh viên**), thẻ thông tin bo tròn màu xanh nhạt gồm **SĐT** (`0987 654 321`) và **Email** (`ngocnguyen@gmail.com`).
+   - **Trang "Mã QR danh thiếp" (chuẩn 100% theo hình):**
+     - TopBar màu xanh có nút quay lại `←`, tiêu đề *"Mã QR danh thiếp"* và nút Chia sẻ `⠪`.
+     - Thẻ trắng lớn nổi bật chứa **mã QR chân thực** có logo danh bạ xanh ở chính giữa.
+     - Dòng hướng dẫn: *"Quét mã để thêm liên hệ vào danh bạ của bạn"*.
+     - Bộ đôi nút thao tác: Nút **"Chia sẻ"** (PrimaryBlue) và Nút **"Tải xuống"** (Nút trắng viền xanh).
+     - Huy hiệu bảo mật: *"🛡️ Thông tin của bạn được bảo mật"*.
+   - **Nút "Quét mã QR":** Giao diện khung ngắm Camera scanner kèm hiệu ứng tia quét laser di chuyển lên xuống và tính năng quét/thêm liên hệ mới vào danh bạ.
+   - **Tùy chỉnh thông tin:** Bấm vào thẻ thông tin hoặc avatar để cập nhật danh thiếp của bạn.
+
 ---
 
 ## 🛠 Công nghệ sử dụng (Tech Stack)
@@ -98,8 +109,11 @@ phone-mobile/
 │   │   │   │   │   │   │   └── AddEditContactScreen.kt # Thêm mới / Sửa liên hệ & Bắt lỗi
 │   │   │   │   │   │   ├── favorite/
 │   │   │   │   │   │   │   └── FavoritesScreen.kt      # Màn hình Danh bạ yêu thích
-│   │   │   │   │   │   └── keypad/
-│   │   │   │   │   │       └── KeypadScreen.kt         # Bàn phím số (Dialpad)
+│   │   │   │   │   │   ├── keypad/
+│   │   │   │   │   │   │   └── KeypadScreen.kt         # Bàn phím số (Dialpad)
+│   │   │   │   │   │   └── more/
+│   │   │   │   │   │       ├── ShareCardScreen.kt      # Màn hình Chia sẻ danh thiếp & Quét mã QR
+│   │   │   │   │   │       └── CardQrScreen.kt         # Trang Mã QR danh thiếp chuẩn hình
 │   │   │   │   │   ├── theme/
 │   │   │   │   │   │   ├── Color.kt        # Hệ thống màu thiết kế Figma
 │   │   │   │   │   │   ├── Theme.kt        # Cấu hình MaterialTheme

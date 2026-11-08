@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+    <!-- Blue Shield -->
+    <path
+        android:fillColor="#FF2F80ED"
+        android:pathData="M48,8L18,22v26c0,23.3 12.8,45 30,50 17.2,-5 30,-26.7 30,-50V22L48,8z" />
+    <!-- White Phone handset inside shield -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M59.2,56.5c-2.4,0 -4.8,-0.4 -7.1,-1.2 -0.8,-0.3 -1.6,-0.1 -2.2,0.5l-4.5,4.5c-5.8,-3 -10.5,-7.7 -13.5,-13.5l4.5,-4.5c0.6,-0.6 0.8,-1.5 0.5,-2.2 -0.8,-2.3 -1.2,-4.7 -1.2,-7.1 0,-1.4 -1.1,-2.5 -2.5,-2.5H25.7c-1.4,0 -2.5,1.1 -2.5,2.5 0,19.3 15.7,35 35,35 1.4,0 2.5,-1.1 2.5,-2.5v-7.5c0,-1.4 -1.1,-2.5 -2.5,-2.5z" />
+    <!-- Sparkle 1 (Top right) -->
+    <path
+        android:fillColor="#FF60A5FA"
+        android:pathData="M84,18l1.5,4.5L90,24l-4.5,1.5L84,30l-1.5,-4.5L78,24l4.5,-1.5z" />
+    <!-- Sparkle 2 (Left) -->
+    <path
+        android:fillColor="#FF60A5FA"
+        android:pathData="M10,40l1.2,3.8L15,45l-3.8,1.2L10,50l-1.2,-3.8L5,45l3.8,-1.2z" />
+</vector>
