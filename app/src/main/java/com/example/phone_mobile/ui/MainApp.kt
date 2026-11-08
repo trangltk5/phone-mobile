@@ -22,6 +22,7 @@ import com.example.phone_mobile.ui.screens.contact.ContactDetailScreen
 import com.example.phone_mobile.ui.screens.contact.ContactListScreen
 import com.example.phone_mobile.ui.screens.favorite.FavoritesScreen
 import com.example.phone_mobile.ui.screens.keypad.KeypadScreen
+import com.example.phone_mobile.ui.screens.more.ShareCardScreen
 
 sealed interface Screen {
     data object MainTabs : Screen
@@ -151,6 +152,20 @@ fun MainApp() {
                         },
                         onMessageClick = { contact ->
                             Toast.makeText(context, "Mở nhắn tin tới: ${contact.phoneNumber}", Toast.LENGTH_SHORT).show()
+                        },
+                        bottomBar = {
+                            PhoneBottomBar(
+                                selectedTab = selectedTab,
+                                onTabSelected = { selectedTab = it }
+                            )
+                        }
+                    )
+                }
+
+                4 -> {
+                    ShareCardScreen(
+                        onImportScannedContact = { scannedContact ->
+                            contacts = listOf(scannedContact) + contacts
                         },
                         bottomBar = {
                             PhoneBottomBar(

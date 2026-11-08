@@ -41,7 +41,7 @@ fun PhoneBottomBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(72.dp)
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = 4.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -69,6 +69,12 @@ fun PhoneBottomBar(
                 isSelected = selectedTab == 3,
                 onClick = { onTabSelected(3) }
             )
+            BottomNavItem(
+                iconRes = R.drawable.ic_more,
+                label = "Thêm",
+                isSelected = selectedTab == 4,
+                onClick = { onTabSelected(4) }
+            )
         }
     }
 }
@@ -80,7 +86,7 @@ private fun BottomNavItem(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val itemColor = if (isSelected) ActiveBlue else Color.Black
+    val itemColor = if (isSelected) ActiveBlue else Color(0xFF8B8686)
 
     Column(
         modifier = Modifier
@@ -89,7 +95,7 @@ private fun BottomNavItem(
                 indication = null,
                 onClick = onClick
             )
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .padding(horizontal = 8.dp, vertical = 6.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -97,13 +103,13 @@ private fun BottomNavItem(
             painter = painterResource(id = iconRes),
             contentDescription = label,
             tint = itemColor,
-            modifier = Modifier.size(28.dp)
+            modifier = Modifier.size(26.dp)
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = label,
-            fontSize = 12.sp,
-            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+            fontSize = 11.sp,
+            fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
             color = itemColor
         )
     }

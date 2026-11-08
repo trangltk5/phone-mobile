@@ -60,6 +60,12 @@
      - 🔴 **Cuộc gọi nhỡ (Missed):** Mũi tên đỏ và tên hiển thị màu đỏ
    - Tự động ghi lại nhật ký mỗi khi người dùng thực hiện cuộc gọi trong ứng dụng.
 
+9. **Menu "Thêm" - Chia sẻ danh thiếp & Quét mã QR:**
+   - **Giao diện chuẩn thiết kế:** Avatar tròn lớn có huy hiệu Camera xanh tròn ở góc dưới bên phải, Họ tên (**Nguyễn Thị Hồng Ngọc**), Chức danh (**Sinh viên**), thẻ thông tin bo tròn màu xanh nhạt gồm **SĐT** (`0987 654 321`) và **Email** (`ngocnguyen@gmail.com`).
+   - **Nút "Tạo mã QR":** Hiển thị mã QR danh thiếp cá nhân dạng ma trận trực quan để người khác quét lưu danh bạ tức thì, hỗ trợ chia sẻ link.
+   - **Nút "Quét mã QR":** Giao diện khung ngắm Camera scanner kèm hiệu ứng tia quét laser di chuyển lên xuống và tính năng quét/thêm liên hệ mới vào danh bạ.
+   - **Tùy chỉnh thông tin:** Bấm vào thẻ thông tin hoặc avatar để cập nhật danh thiếp của bạn.
+
 ---
 
 ## 🛠 Công nghệ sử dụng (Tech Stack)
@@ -98,8 +104,10 @@ phone-mobile/
 │   │   │   │   │   │   │   └── AddEditContactScreen.kt # Thêm mới / Sửa liên hệ & Bắt lỗi
 │   │   │   │   │   │   ├── favorite/
 │   │   │   │   │   │   │   └── FavoritesScreen.kt      # Màn hình Danh bạ yêu thích
-│   │   │   │   │   │   └── keypad/
-│   │   │   │   │   │       └── KeypadScreen.kt         # Bàn phím số (Dialpad)
+│   │   │   │   │   │   ├── keypad/
+│   │   │   │   │   │   │   └── KeypadScreen.kt         # Bàn phím số (Dialpad)
+│   │   │   │   │   │   └── more/
+│   │   │   │   │   │       └── ShareCardScreen.kt      # Màn hình Chia sẻ danh thiếp & Quét mã QR
 │   │   │   │   │   ├── theme/
 │   │   │   │   │   │   ├── Color.kt        # Hệ thống màu thiết kế Figma
 │   │   │   │   │   │   ├── Theme.kt        # Cấu hình MaterialTheme
