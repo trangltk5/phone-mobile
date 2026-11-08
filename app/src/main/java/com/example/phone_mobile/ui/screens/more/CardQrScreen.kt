@@ -1,9 +1,11 @@
 package com.example.phone_mobile.ui.screens.more
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -31,6 +33,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,17 +49,50 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.phone_mobile.R
 import com.example.phone_mobile.ui.theme.PrimaryBlue
+import com.example.phone_mobile.util.QrCodeUtils
 
 @Composable
 fun CardQrScreen(
     contactName: String = "Nguyễn Thị Hồng Ngọc",
+    contactTitle: String = "Sinh viên",
+    phoneNumber: String = "0987 654 321",
+    email: String = "ngocnguyen@gmail.com",
     onBackClick: () -> Unit,
     bottomBar: @Composable () -> Unit
 ) {
     val context = LocalContext.current
 
+    // Sinh chuỗi vCard 3.0 chuẩn quốc tế (tương thích 100% với iOS Camera & Android)
+    val vCardData = remember(contactName, contactTitle, phoneNumber, email) {
+        QrCodeUtils.buildVCardString(
+            name = contactName,
+            title = contactTitle,
+            phone = phoneNumber,
+            email = email
+        )
+    }
+
+    // Sinh ảnh QR code thật với mức sửa lỗi cao H để quét cực nhanh
+    val qrBitmap = remember(vCardData) {
+        QrCodeUtils.generateQrBitmap(vCardData, 600, 600)
+    }
+
     BackHandler {
         onBackClick()
+    }
+
+    // Hàm chia sẻ vCard qua các ứng dụng khác (Zalo, Tin nhắn, AirDrop/QuickShare, Gmail...)
+    val shareContact = {
+        try {
+            val shareIntent = Intent(Intent.ACTION_SEND).apply {
+                type = "text/x-vcard"
+                putExtra(Intent.EXTRA_SUBJECT, "Danh thiếp: $contactName")
+                putExtra(Intent.EXTRA_TEXT, vCardData)
+            }
+            context.startActivity(Intent.createChooser(shareIntent, "Chia sẻ danh thiếp qua"))
+        } catch (e: Exception) {
+            Toast.makeText(context, "Chia sẻ danh thiếp của $contactName", Toast.LENGTH_SHORT).show()
+        }
     }
 
     Scaffold(
@@ -94,11 +130,7 @@ fun CardQrScreen(
                     }
 
                     // Nút Chia sẻ ở góc phải TopBar
-                    IconButton(
-                        onClick = {
-                            Toast.makeText(context, "Chia sẻ mã QR danh thiếp của $contactName", Toast.LENGTH_SHORT).show()
-                        }
-                    ) {
+                    IconButton(onClick = { shareContact() }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_share),
                             contentDescription = "Chia sẻ",
@@ -135,23 +167,31 @@ fun CardQrScreen(
                         .padding(22.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    // Vẽ mã QR chi tiết, sắc nét
-                    RealisticQrCode(modifier = Modifier.fillMaxSize())
+                    // Mã QR vCard 3.0 thực tế - iPhone và Android quét phát hiện danh bạ tức thì
+                    if (qrBitmap != null) {
+                        Image(
+                            bitmap = qrBitmap,
+                            contentDescription = "Mã QR vCard của $contactName",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        RealisticQrCode(modifier = Modifier.fillMaxSize())
+                    }
 
                     // Logo danh thiếp bo tròn ở chính giữa mã QR (như ảnh)
                     Box(
                         modifier = Modifier
-                            .size(54.dp)
-                            .clip(RoundedCornerShape(12.dp))
+                            .size(46.dp)
+                            .clip(RoundedCornerShape(10.dp))
                             .background(PrimaryBlue)
-                            .border(3.dp, Color.White, RoundedCornerShape(12.dp)),
+                            .border(2.5.dp, Color.White, RoundedCornerShape(10.dp)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_contact_book),
                             contentDescription = null,
                             tint = Color.White,
-                            modifier = Modifier.size(28.dp)
+                            modifier = Modifier.size(24.dp)
                         )
                     }
                 }
@@ -173,9 +213,7 @@ fun CardQrScreen(
 
             // 1. Nút "Chia sẻ" (Nút xanh PrimaryBlue tròn 26dp)
             Button(
-                onClick = {
-                    Toast.makeText(context, "Đang chia sẻ danh thiếp của bạn...", Toast.LENGTH_SHORT).show()
-                },
+                onClick = { shareContact() },
                 colors = ButtonDefaults.buttonColors(containerColor = PrimaryBlue),
                 shape = RoundedCornerShape(26.dp),
                 modifier = Modifier

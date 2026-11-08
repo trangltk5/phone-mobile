@@ -74,10 +74,13 @@ fun ShareCardScreen(
     var showScanDialog by remember { mutableStateOf(false) }
     var showEditProfileDialog by remember { mutableStateOf(false) }
 
-    // Chuyển sang trang "Mã QR danh thiếp" toàn màn hình chuẩn như hình
+    // Chuyển sang trang "Mã QR danh thiếp" toàn màn hình chuẩn như hình (sinh vCard thực tế)
     if (isViewingQrPage) {
         CardQrScreen(
             contactName = myName,
+            contactTitle = myTitle,
+            phoneNumber = myPhone,
+            email = myEmail,
             onBackClick = { isViewingQrPage = false },
             bottomBar = bottomBar
         )
