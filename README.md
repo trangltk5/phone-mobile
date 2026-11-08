@@ -17,9 +17,9 @@
    - Hiển thị ngôi sao vàng ⭐ trực tiếp trên danh bạ cho các liên hệ thuộc danh sách yêu thích.
    - Nút gọi điện nhanh ngay trên từng dòng danh bạ.
 
-2. **Màn hình Danh bạ trống (Empty State):**
-   - Tự động hiển thị thẻ minh họa profile card bo góc màu xanh pastel khi máy chưa có liên hệ hoặc đã xóa hết danh bạ.
-   - Kèm tiêu đề, thông điệp hướng dẫn và nút bấm `+ Thêm liên hệ` nhanh theo đúng thiết kế Figma (Node `5:1791`).
+2. **Màn hình Danh bạ trống & Tìm kiếm không có kết quả (Empty States):**
+   - **Danh bạ trống (Node `5:1791`):** Tự động hiển thị thẻ minh họa profile card bo góc màu xanh pastel khi máy chưa có liên hệ hoặc đã xóa hết danh bạ, kèm tiêu đề *"Chưa có liên hệ nào"*, thông điệp hướng dẫn và nút bấm `+ Thêm liên hệ`.
+   - **Tìm kiếm không có kết quả:** Khi gõ từ khóa không khớp, TopBar chuyển sang tiêu đề *"Tìm kiếm"* kèm nút quay lại `←`, thanh tìm kiếm có nút xóa `✕`, hiển thị hình minh họa **khung vuông viền xanh dương với cuốn sổ danh bạ pastel bên trong**, tiêu đề đậm *"Không tìm thấy liên hệ phù hợp."* và phụ đề *"Hãy thử từ khóa khác."* chuẩn 100% thiết kế.
 
 3. **Xem Chi tiết liên hệ (Contact Details):**
    - Hiển thị avatar đại diện cỡ lớn cùng họ tên đầy đủ.

@@ -1,0 +1,40 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- Blue square outline frame -->
+    <path
+        android:strokeColor="#FF2196F3"
+        android:strokeWidth="3.5"
+        android:pathData="M18,18h164v164h-164z" />
+
+    <!-- 3 Notebook binder tabs on the left -->
+    <!-- Tab 1 -->
+    <path
+        android:fillColor="#FFC5D8F8"
+        android:pathData="M46,60h12v16h-12c-2.2,0 -4,-1.8 -4,-4v-8c0,-2.2 1.8,-4 4,-4z" />
+    <!-- Tab 2 -->
+    <path
+        android:fillColor="#FFC5D8F8"
+        android:pathData="M46,88h12v16h-12c-2.2,0 -4,-1.8 -4,-4v-8c0,-2.2 1.8,-4 4,-4z" />
+    <!-- Tab 3 -->
+    <path
+        android:fillColor="#FFC5D8F8"
+        android:pathData="M46,116h12v16h-12c-2.2,0 -4,-1.8 -4,-4v-8c0,-2.2 1.8,-4 4,-4z" />
+
+    <!-- Notebook body (rounded rectangle) -->
+    <path
+        android:fillColor="#FFC5D8F8"
+        android:pathData="M66,42h74c6.6,0 12,5.4 12,12v88c0,6.6 -5.4,12 -12,12h-74c-6.6,0 -12,-5.4 -12,-12V54c0,-6.6 5.4,-12 12,-12z" />
+
+    <!-- User Profile White Silhouette inside notebook -->
+    <!-- Head -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M103,80m-18,0a18,18 0 1,1 36,0a18,18 0 1,1 -36,0" />
+    <!-- Body -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M76,126c0,-14.9 12.1,-27 27,-27s27,12.1 27,27z" />
+</vector>
