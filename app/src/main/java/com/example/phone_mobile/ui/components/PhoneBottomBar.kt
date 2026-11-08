@@ -71,7 +71,7 @@ fun PhoneBottomBar(
             )
             BottomNavItem(
                 iconRes = R.drawable.ic_more,
-                label = "Danh thiếp của tôi",
+                label = "Thêm",
                 isSelected = selectedTab == 4,
                 onClick = { onTabSelected(4) }
             )

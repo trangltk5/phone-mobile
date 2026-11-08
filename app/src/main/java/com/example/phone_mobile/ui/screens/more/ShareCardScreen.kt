@@ -300,7 +300,7 @@ fun ShareCardScreen(
                     contentAlignment = Alignment.CenterStart
                 ) {
                     Text(
-                        text = "Chia sẻ danh thiếp",
+                        text = "Danh thiếp của tôi",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
