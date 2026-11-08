@@ -426,19 +426,7 @@ private fun ContactItemRow(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.weight(1f)
         ) {
-            // Ngôi sao vàng nếu là liên hệ yêu thích
-            if (contact.isFavorite) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_star_filled),
-                    contentDescription = "Yêu thích",
-                    tint = Color(0xFFFFB800),
-                    modifier = Modifier
-                        .padding(end = 8.dp)
-                        .size(18.dp)
-                )
-            }
-
-            // Avatar tròn
+            // Avatar tròn (cố định căn lề trái thẳng hàng)
             Icon(
                 painter = painterResource(id = R.drawable.ic_user_avatar),
                 contentDescription = null,
@@ -450,12 +438,24 @@ private fun ContactItemRow(
 
             // Tên và SĐT
             Column {
-                Text(
-                    text = contact.name,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.Black
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = contact.name,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Black
+                    )
+                    // Ngôi sao vàng yêu thích nằm ngay cạnh tên
+                    if (contact.isFavorite) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_star_filled),
+                            contentDescription = "Yêu thích",
+                            tint = Color(0xFFFFB800),
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = contact.phoneNumber,

@@ -2,18 +2,48 @@ package com.example.phone_mobile.ui
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import com.example.phone_mobile.R
 import com.example.phone_mobile.data.model.CallLog
 import com.example.phone_mobile.data.model.CallType
 import com.example.phone_mobile.data.model.Contact
+import com.example.phone_mobile.data.model.EmergencyContact
 import com.example.phone_mobile.data.model.sampleCallLogs
 import com.example.phone_mobile.data.model.sampleContacts
+import com.example.phone_mobile.data.model.sampleEmergencyContacts
 import com.example.phone_mobile.ui.components.PhoneBottomBar
 import com.example.phone_mobile.ui.screens.call.CallHistoryScreen
 import com.example.phone_mobile.ui.screens.call.InCallScreen
@@ -23,6 +53,8 @@ import com.example.phone_mobile.ui.screens.contact.ContactListScreen
 import com.example.phone_mobile.ui.screens.favorite.FavoritesScreen
 import com.example.phone_mobile.ui.screens.keypad.KeypadScreen
 import com.example.phone_mobile.ui.screens.more.ShareCardScreen
+import com.example.phone_mobile.util.NotificationManager
+import kotlinx.coroutines.delay
 
 sealed interface Screen {
     data object MainTabs : Screen
@@ -41,12 +73,26 @@ fun MainApp() {
     val context = LocalContext.current
 
     var contacts by remember { mutableStateOf(sampleContacts) }
+    var emergencyContacts by remember { mutableStateOf(sampleEmergencyContacts) }
     var callLogs by remember { mutableStateOf(sampleCallLogs) }
     var selectedTab by remember { mutableIntStateOf(2) } // Mặc định là tab Danh bạ
     var currentScreen by remember { mutableStateOf<Screen>(Screen.MainTabs) }
 
     // Số điện thoại ban đầu trên bàn phím (nếu có)
     var keypadPhoneNumber by remember { mutableStateOf("") }
+
+    // Quản lý thông báo nổi ở Top Center
+    var topNotificationMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        NotificationManager.messages.collect { msg ->
+            topNotificationMessage = msg
+            delay(2500)
+            if (topNotificationMessage == msg) {
+                topNotificationMessage = null
+            }
+        }
+    }
 
     // Bắt đầu cuộc gọi: Mở trực tiếp màn hình In-Call chuẩn phong cách iOS
     fun initiateCall(phoneNumber: String, name: String? = null) {
@@ -62,7 +108,8 @@ fun MainApp() {
         )
     }
 
-    when (val screen = currentScreen) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        when (val screen = currentScreen) {
         is Screen.InCall -> {
             InCallScreen(
                 phoneNumber = screen.phoneNumber,
@@ -78,7 +125,7 @@ fun MainApp() {
                         duration = duration
                     )
                     callLogs = listOf(newCallLog) + callLogs
-                    Toast.makeText(context, "Cuộc gọi đã kết thúc ($duration)", Toast.LENGTH_SHORT).show()
+                    NotificationManager.show(context, "Cuộc gọi đã kết thúc ($duration)")
                     currentScreen = screen.previousScreen
                 }
             )
@@ -105,6 +152,7 @@ fun MainApp() {
                     KeypadScreen(
                         initialPhoneNumber = keypadPhoneNumber,
                         contacts = contacts,
+                        emergencyContacts = emergencyContacts,
                         onMakeCall = { number, contactName ->
                             initiateCall(number, contactName)
                         },
@@ -127,7 +175,7 @@ fun MainApp() {
                             initiateCall(contact.phoneNumber, contact.name)
                         },
                         onMessageClick = { contact ->
-                            Toast.makeText(context, "Mở nhắn tin tới: ${contact.phoneNumber}", Toast.LENGTH_SHORT).show()
+                            NotificationManager.show(context, "Mở nhắn tin tới: ${contact.phoneNumber}")
                         },
                         onAddClick = {
                             currentScreen = Screen.Add
@@ -151,7 +199,7 @@ fun MainApp() {
                             initiateCall(contact.phoneNumber, contact.name)
                         },
                         onMessageClick = { contact ->
-                            Toast.makeText(context, "Mở nhắn tin tới: ${contact.phoneNumber}", Toast.LENGTH_SHORT).show()
+                            NotificationManager.show(context, "Mở nhắn tin tới: ${contact.phoneNumber}")
                         },
                         bottomBar = {
                             PhoneBottomBar(
@@ -164,6 +212,12 @@ fun MainApp() {
 
                 4 -> {
                     ShareCardScreen(
+                        emergencyContacts = emergencyContacts,
+                        allContacts = contacts,
+                        onUpdateEmergencyContacts = { emergencyContacts = it },
+                        onMakeCall = { number, contactName ->
+                            initiateCall(number, contactName)
+                        },
                         onImportScannedContact = { scannedContact ->
                             contacts = listOf(scannedContact) + contacts
                         },
@@ -194,10 +248,10 @@ fun MainApp() {
                     onEditClick = { currentScreen = Screen.Edit(contact.id) },
                     onCallClick = { initiateCall(contact.phoneNumber, contact.name) },
                     onVideoCallClick = {
-                        Toast.makeText(context, "Bắt đầu cuộc gọi video tới: ${contact.name}...", Toast.LENGTH_SHORT).show()
+                        NotificationManager.show(context, "Bắt đầu cuộc gọi video tới: ${contact.name}...")
                     },
                     onMessageClick = {
-                        Toast.makeText(context, "Mở nhắn tin tới: ${contact.phoneNumber}", Toast.LENGTH_SHORT).show()
+                        NotificationManager.show(context, "Mở nhắn tin tới: ${contact.phoneNumber}")
                     },
                     onToggleFavorite = {
                         contacts = contacts.map {
@@ -206,7 +260,7 @@ fun MainApp() {
                     },
                     onDeleteClick = {
                         contacts = contacts.filterNot { it.id == contact.id }
-                        Toast.makeText(context, "Đã xóa liên hệ \"${contact.name}\"", Toast.LENGTH_SHORT).show()
+                        NotificationManager.show(context, "Đã xóa liên hệ \"${contact.name}\"")
                         currentScreen = Screen.MainTabs
                     }
                 )
@@ -226,7 +280,7 @@ fun MainApp() {
                 onBackClick = { currentScreen = Screen.MainTabs },
                 onSaveContact = { newContact ->
                     contacts = listOf(newContact) + contacts
-                    Toast.makeText(context, "Đã thêm liên hệ mới thành công!", Toast.LENGTH_SHORT).show()
+                    NotificationManager.show(context, "Đã thêm liên hệ mới thành công!")
                     currentScreen = Screen.Detail(newContact.id)
                 }
             )
@@ -247,7 +301,7 @@ fun MainApp() {
                         contacts = contacts.map {
                             if (it.id == updatedContact.id) updatedContact else it
                         }
-                        Toast.makeText(context, "Đã cập nhật liên hệ thành công!", Toast.LENGTH_SHORT).show()
+                        NotificationManager.show(context, "Đã cập nhật liên hệ thành công!")
                         currentScreen = Screen.Detail(updatedContact.id)
                     }
                 )
@@ -256,4 +310,43 @@ fun MainApp() {
             }
         }
     }
+
+    // THÔNG BÁO NỔI TOÀN APP Ở TOP CENTER (Đỉnh giữa màn hình)
+    AnimatedVisibility(
+        visible = topNotificationMessage != null,
+        enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+        exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
+        modifier = Modifier
+            .align(Alignment.TopCenter)
+            .statusBarsPadding()
+            .padding(top = 16.dp, start = 24.dp, end = 24.dp)
+            .zIndex(9999f)
+    ) {
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            color = Color(0xF21E293B), // Slate đậm hiện đại
+            shadowElevation = 8.dp
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_info),
+                    contentDescription = null,
+                    tint = Color(0xFF60A5FA),
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = topNotificationMessage ?: "",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.White
+                )
+            }
+        }
+    }
+}
 }

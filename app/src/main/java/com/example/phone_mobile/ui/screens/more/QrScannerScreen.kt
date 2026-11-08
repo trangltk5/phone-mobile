@@ -532,10 +532,13 @@ private fun ScannerOverlay(modifier: Modifier = Modifier) {
             )
         }
 
-        // Dòng chữ hướng dẫn: "Hướng camera vào mã QR để quét" nằm ngay dưới ô quét
+        // Dòng chữ thông báo hướng dẫn: Di chuyển lên TOP CENTER (ngay dưới TopBar, phía trên khung quét)
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(top = 220.dp)
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .statusBarsPadding()
+                .padding(top = 84.dp)
         ) {
             Box(
                 modifier = Modifier
@@ -544,12 +547,11 @@ private fun ScannerOverlay(modifier: Modifier = Modifier) {
                     .padding(horizontal = 20.dp, vertical = 10.dp)
             ) {
                 Text(
-                    text = "Hướng camera vào mã QR\nđể quét",
+                    text = "Hướng camera vào mã QR để quét",
                     color = Color.White,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 20.sp
+                    textAlign = TextAlign.Center
                 )
             }
         }

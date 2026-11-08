@@ -1,6 +1,7 @@
 package com.example.phone_mobile.ui.screens.more
 
 import android.widget.Toast
+import com.example.phone_mobile.util.NotificationManager
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -52,13 +53,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.window.Dialog
 import com.example.phone_mobile.R
 import com.example.phone_mobile.data.model.Contact
+import com.example.phone_mobile.data.model.EmergencyContact
+import com.example.phone_mobile.ui.screens.emergency.EmergencyContactsScreen
 import com.example.phone_mobile.ui.theme.PrimaryBlue
 
 @Composable
 fun ShareCardScreen(
+    emergencyContacts: List<EmergencyContact> = emptyList(),
+    allContacts: List<Contact> = emptyList(),
+    onUpdateEmergencyContacts: (List<EmergencyContact>) -> Unit = {},
+    onMakeCall: (phoneNumber: String, contactName: String?) -> Unit = { _, _ -> },
     onImportScannedContact: (Contact) -> Unit = {},
     onViewContactDetail: (Contact) -> Unit = {},
     bottomBar: @Composable () -> Unit
@@ -73,8 +81,22 @@ fun ShareCardScreen(
 
     var isViewingQrPage by remember { mutableStateOf(false) }
     var isScanningQr by remember { mutableStateOf(false) }
+    var isViewingEmergencyScreen by remember { mutableStateOf(false) }
     var scannedSuccessContact by remember { mutableStateOf<Contact?>(null) }
     var showEditProfileDialog by remember { mutableStateOf(false) }
+
+    // 0. Màn hình "Danh bạ khẩn cấp & Gọi nhanh" (Bộ 4 màn hình chuẩn như ảnh)
+    if (isViewingEmergencyScreen) {
+        EmergencyContactsScreen(
+            emergencyContacts = emergencyContacts,
+            allContacts = allContacts,
+            onUpdateEmergencyContacts = onUpdateEmergencyContacts,
+            onMakeCall = onMakeCall,
+            onBack = { isViewingEmergencyScreen = false },
+            bottomBar = bottomBar
+        )
+        return
+    }
 
     // 1. Màn hình "Thêm liên hệ từ QR" (Khi quét thành công - giao diện chuẩn 100% như ảnh)
     if (scannedSuccessContact != null) {
@@ -212,7 +234,7 @@ fun ShareCardScreen(
                                     myPhone = tempPhone
                                     myEmail = tempEmail
                                     showEditProfileDialog = false
-                                    Toast.makeText(context, "Đã cập nhật danh thiếp!", Toast.LENGTH_SHORT).show()
+                                    NotificationManager.show(context, "Đã cập nhật danh thiếp!")
                                 },
                             contentAlignment = Alignment.Center
                         ) {
@@ -291,7 +313,7 @@ fun ShareCardScreen(
                         .background(PrimaryBlue)
                         .border(3.dp, Color.White, CircleShape)
                         .clickable {
-                            Toast.makeText(context, "Chọn ảnh đại diện mới", Toast.LENGTH_SHORT).show()
+                            NotificationManager.show(context, "Chọn ảnh đại diện mới")
                         },
                     contentAlignment = Alignment.Center
                 ) {
@@ -493,7 +515,80 @@ fun ShareCardScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(26.dp))
+
+            // 9. Thẻ Danh bạ khẩn cấp & Gọi nhanh (Nơi 1: Trong tab Thêm - Khuyên dùng)
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { isViewingEmergencyScreen = true },
+                shape = RoundedCornerShape(16.dp),
+                color = Color(0xFFFFF1F2),
+                border = BorderStroke(1.dp, Color(0xFFFECDD3))
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 18.dp, vertical = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(46.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFFFEE2E2)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_warning_filled),
+                            contentDescription = "Danh bạ khẩn cấp",
+                            tint = Color(0xFFEF4444),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(14.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = "Danh bạ khẩn cấp",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF991B1B)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Surface(
+                                shape = RoundedCornerShape(6.dp),
+                                color = Color(0xFFEF4444)
+                            ) {
+                                Text(
+                                    text = "SOS",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White,
+                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 1.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = "Gọi nhanh Bố, Mẹ và người thân (Phím 1-9)",
+                            fontSize = 12.sp,
+                            color = Color(0xFFB91C1C)
+                        )
+                    }
+
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_call),
+                        contentDescription = "Mở",
+                        tint = Color(0xFFEF4444),
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }

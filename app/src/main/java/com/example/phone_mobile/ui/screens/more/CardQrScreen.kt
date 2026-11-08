@@ -2,6 +2,7 @@ package com.example.phone_mobile.ui.screens.more
 
 import android.content.Intent
 import android.widget.Toast
+import com.example.phone_mobile.util.NotificationManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -91,7 +92,7 @@ fun CardQrScreen(
             }
             context.startActivity(Intent.createChooser(shareIntent, "Chia sẻ danh thiếp qua"))
         } catch (e: Exception) {
-            Toast.makeText(context, "Chia sẻ danh thiếp của $contactName", Toast.LENGTH_SHORT).show()
+            NotificationManager.show(context, "Chia sẻ danh thiếp của $contactName")
         }
     }
 
@@ -151,7 +152,8 @@ fun CardQrScreen(
                 .padding(horizontal = 24.dp, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(10.dp))
+            // Khoảng cách đẩy toàn bộ khối QR và các nút xuống thấp hơn, cân đối với màn hình
+            Spacer(modifier = Modifier.height(48.dp))
 
             // Thẻ trắng lớn chứa mã QR trung tâm (Bo góc mềm, đổ bóng tinh tế chuẩn 100% như ảnh)
             Surface(
@@ -245,7 +247,7 @@ fun CardQrScreen(
             // 2. Nút "Tải xuống" (Nút trắng viền xanh PrimaryBlue)
             OutlinedButton(
                 onClick = {
-                    Toast.makeText(context, "Đã lưu mã QR vào thư viện ảnh!", Toast.LENGTH_SHORT).show()
+                    NotificationManager.show(context, "Đã lưu mã QR vào thư viện ảnh!")
                 },
                 colors = ButtonDefaults.outlinedButtonColors(
                     containerColor = Color.White,
